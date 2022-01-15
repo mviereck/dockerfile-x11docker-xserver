@@ -26,11 +26,16 @@ This should provide the best possible combination of security and performance fo
 The image contains the free open source MESA drivers. No setup is needed if you use MESA drivers on host.
 ### NVIDIA driver
 If you have closed source NVIDIA driver installed on host, image `x11docker/xserver` needs the same driver version inside for hardware acceleration.
+However, this only makes sense if your driver version is >=`470.x` as older ones do not support the accelerated X server setups of this image.
+
 You have two possibilities:
 #### Automated install on every container startup
 Provide an NVIDIA driver installer file at `~/.local/share/x11docker`. x11docker will install the driver on every startup of `x11docker/xserver`.
 This will slow down container startup. Compare [x11docker wiki: Automated install of NVIDIA driver during container startup](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#automated-install-of-nvidia-driver-during-container-startup).
 #### Build `x11docker/xserver` based on `x11docker/nvidia-base`
  - Create an image `x11docker/nvidia-base`. A script for this is provided at [x11docker wiki: NVIDIA driver base image](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#nvidia-driver-base-image).
- - Change line 1 of Dockerfile of `x11docker/xserver` to `FROM x11docker/nvidia-base` and build `x11docker/xserver` with this Dockerfile.
+ - Change line 1 of Dockerfile of `x11docker/xserver` to `FROM x11docker/nvidia-base` and build image `x11docker/xserver` with this Dockerfile.
+ 
+Note that this image will only work with the NVIDIA driver version of your host and is not portable.
+
  
