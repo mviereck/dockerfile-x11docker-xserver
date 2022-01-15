@@ -2,12 +2,11 @@
 
 This Dockerfile provides a set of X servers that can be used by [x11docker](https://github.com/mviereck/x11docker).
 The resulting image `x11docker/xserver` can be used automatically to run the supported X servers in a container.
-Use option `--xc` to control x11docker behaviour.
 This allows to isolate the X servers from host and to reduce x11docker dependencies on host.
 
 Build image with: `x11docker --build x11docker/xserver`
 
-Currently supported x11docker option for use with image `x11docker/xserver`:
+Currently supported x11docker options for use with image `x11docker/xserver`:
  - `--xpra`
  - `--xephyr`
  - `--weston-xwayland`
