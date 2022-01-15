@@ -6,7 +6,7 @@ This allows to isolate the X servers from host and to reduce x11docker dependenc
 
 Build image with: `x11docker --build x11docker/xserver`
 
-Currently supported x11docker options for use with image `x11docker/xserver`:
+Currently supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
  - `--xpra`
  - `--xephyr`
  - `--weston-xwayland`
@@ -14,9 +14,23 @@ Currently supported x11docker options for use with image `x11docker/xserver`:
  - `--xwayland`
  - `--weston`
 
-Additional options that depend on image `x11docker/xserver`:
+Options that depend on image `x11docker/xserver` and `xpra` on host:
  - `--xpra2`
  - `--xpra2-xwayland`
  
 `--xpra2` and `--xpra2-xwayland` run X server and xpra server in container, but xpra client on host. 
 This should provide the best possible combination of security and performance for `xpra`.
+
+## GPU support
+### Open source MESA drivers
+The image contains the free open source MESA drivers. No setup is needed if you use MESA drivers on host.
+### NVIDIA driver
+If you have closed source NVIDIA driver installed on host, image `x11docker/xserver` needs the same driver version inside for hardware acceleration.
+You have two possibilities:
+#### Automated install on every container startup
+Provide an NVIDIA driver installer file at `~/.local/share/x11docker`. x11docker will install the driver on every startup of `x11docker/xserver`.
+This will slow down container startup. Compare [x11docker wiki: Automated install of NVIDIA driver during container startup](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#automated-install-of-nvidia-driver-during-container-startup).
+#### Build `x11docker/xserver` based on `x11docker/nvidia-base`
+ - Create an image `x11docker/nvidia-base`. A script for this is provided at [x11docker wiki: NVIDIA driver base image](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#nvidia-driver-base-image).
+ - Change line 1 of Dockerfile of `x11docker/xserver` to `FROM x11docker/nvidia-base` and build `x11docker/xserver` with this Dockerfile.
+ 
