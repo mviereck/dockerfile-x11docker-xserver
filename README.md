@@ -5,8 +5,10 @@ The resulting image `x11docker/xserver` can be used automatically to run the sup
 This allows to isolate the X servers from host and to reduce x11docker dependencies on host.
 
 Build image with: `x11docker --build x11docker/xserver`
+The build takes a while because nxagent is built from source.
 
 Currently supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
+ - `--nxagent`
  - `--xpra`
  - `--xephyr`
  - `--weston-xwayland`
@@ -34,8 +36,6 @@ Provide an NVIDIA driver installer file at `~/.local/share/x11docker`. x11docker
 This will slow down container startup. Compare [x11docker wiki: Automated install of NVIDIA driver during container startup](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#automated-install-of-nvidia-driver-during-container-startup).
 #### Build `x11docker/xserver` based on `x11docker/nvidia-base`
  - Create an image `x11docker/nvidia-base`. A script for this is provided at [x11docker wiki: NVIDIA driver base image](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#nvidia-driver-base-image).
- - Change line 1 of Dockerfile of `x11docker/xserver` to `FROM x11docker/nvidia-base` and build image `x11docker/xserver` with this Dockerfile.
+ - In Dockerfile for `x11docker/xserver` change *second* occurence of `FROM debian:bullseye-slim` to `FROM x11docker/nvidia-base` and build image `x11docker/xserver` with this Dockerfile.
  
 Note that this image will only work with the NVIDIA driver version of your host and is not portable.
-
- 
