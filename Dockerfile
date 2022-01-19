@@ -40,11 +40,6 @@ RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/source
     apt-get remove -y --purge $installpackages && \
     /apt_cleanup
 
-#########################
-FROM debian:bullseye
-COPY --from=0 /nxagent_3.5.99.26-2_amd64.deb /
-COPY --from=0 /apt_cleanup /
-
 # X servers and tools
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

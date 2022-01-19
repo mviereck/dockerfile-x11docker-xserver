@@ -1,7 +1,10 @@
 /*
  * Fake MIT-SHM lib found at https://github.com/mobdata/mobnode/blob/01fa78f67f01ade55b3dd6c4d8da088ed9507f9c/XlibNoSHM.c
- * Slightly adjusted following tips of joanbm here: https://github.com/jessfraz/dockerfiles/issues/359#issuecomment-1015835732
- * ************
+ * Slightly adjusted following tips of @joanbm here: https://github.com/jessfraz/dockerfiles/issues/359#issuecomment-1015835732
+ * Used by x11docker in some x11docker/xserver setups and for option --hostdisplay.
+ */
+
+/*
  * Firefox47 and above has a "bug":
  *   https://bugzilla.mozilla.org/show_bug.cgi?id=1271100
  * Firefox attempts to use the X (X11, X-windows) extension MIT-SHM.

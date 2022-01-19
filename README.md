@@ -20,6 +20,12 @@ Options that depend on image `x11docker/xserver` and `xpra` on host:
  - `--xpra2`
  - `--xpra2-xwayland`
  
+Not supported: 
+ - `--xorg` 
+ - `--xpra-xwayland`
+ - `--weston` and `--weston-xwayland` on console
+ - `--kwin`
+ 
 `--xpra2` and `--xpra2-xwayland` run X server and xpra server in container, but xpra client on host. 
 This should provide the best possible combination of security and performance for `xpra`.
 
@@ -36,6 +42,6 @@ Provide an NVIDIA driver installer file at `~/.local/share/x11docker`. x11docker
 This will slow down container startup. Compare [x11docker wiki: Automated install of NVIDIA driver during container startup](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#automated-install-of-nvidia-driver-during-container-startup).
 #### Build `x11docker/xserver` based on `x11docker/nvidia-base`
  - Create an image `x11docker/nvidia-base`. A script for this is provided at [x11docker wiki: NVIDIA driver base image](https://github.com/mviereck/x11docker/wiki/NVIDIA-driver-support-for-docker-container#nvidia-driver-base-image).
- - In Dockerfile for `x11docker/xserver` change *second* occurence of `FROM debian:bullseye-slim` to `FROM x11docker/nvidia-base` and build image `x11docker/xserver` with this Dockerfile.
+ - In Dockerfile for `x11docker/xserver` change `FROM debian:bullseye` to `FROM x11docker/nvidia-base` and build image `x11docker/xserver` with this Dockerfile.
  
 Note that this image will only work with the NVIDIA driver version of your host and is not portable.
