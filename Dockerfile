@@ -45,7 +45,9 @@ RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         /nxagent_3.5.99.26-2_amd64.deb \
         weston \
+        wmctrl \
         x11-utils \
+        x11-xkb-utils \
         x11-xserver-utils \
         xauth \
         xclip \

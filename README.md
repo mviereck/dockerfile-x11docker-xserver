@@ -7,6 +7,8 @@ This allows to isolate the X servers from host and to reduce x11docker dependenc
 Build image with: `x11docker --build x11docker/xserver`
 The build takes a while because nxagent is built from source.
 
+Alternatively pull it from docker hub with `docker pull x11docker/xserver`.
+
 Currently supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
  - `--nxagent`
  - `--xpra`
