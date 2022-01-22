@@ -72,7 +72,8 @@ RUN apt-get update && \
         wget \
         gnupg \
         ca-certificates && \
-    wget -q https://xpra.org/gpg.asc -O- | apt-key add - && \
+    wget -q http://xpra.org/gpg.asc -O xpra-gpg.asc && \
+    apt-key add xpra-gpg.asc && \
     echo "deb http://xpra.org/ bullseye main" > /etc/apt/sources.list.d/xpra.list && \
     apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -85,7 +86,19 @@ RUN apt-get update && \
         ca-certificates && \
     /apt_cleanup
 
-COPY XlibNoSHM.so /XlibNoSHM.so
+# compile fake MIT-SHM library
+COPY XlibNoSHM.c /XlibNoSHM.c
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            gcc \
+            libc6-dev \
+            libx11-dev && \
+    gcc -shared -o /XlibNoSHM.so /XlibNoSHM.c && \
+    apt-get remove --purge -y \
+        gcc \
+        libc6-dev \
+        libx11-dev && \
+    /apt_cleanup
 
 
 #RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
