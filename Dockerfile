@@ -9,6 +9,11 @@
 #
 # x11docker on github: https://github.com/mviereck/x11docker
 
+LABEL version=1.1
+LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston'
+LABEL tools='xclip copyq xauth virgl xfishtank wmctrl'
+LABEL gpu='MESA'
+
 #########################
 FROM debian:bullseye
 
@@ -44,6 +49,7 @@ RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/source
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         /nxagent_3.5.99.26-2_amd64.deb \
+        virgl-server \
         weston \
         wmctrl \
         x11-utils \
@@ -100,6 +106,12 @@ RUN apt-get update && \
         libx11-dev && \
     /apt_cleanup
 
+
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            copyq \
+            copyq-plugins && \
+    /apt_cleanup
 
 #RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 #        xkbset xkbind xkb-data x11-xkb-utils gir1.2-xkl-1.0 libxkbcommon0 libxkbcommon-x11-0 libxcb-xkb1
