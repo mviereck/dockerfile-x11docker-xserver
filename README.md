@@ -17,13 +17,13 @@ Currently supported x11docker options (formerly host only) for use with image `x
  - `--xvfb`
  - `--xwayland`
  - `--weston`
+ - `--xorg`
 
 Options that depend on image `x11docker/xserver` and `xpra` on host:
  - `--xpra2`
  - `--xpra2-xwayland`
  
-Not supported: 
- - `--xorg` 
+Not supported:  
  - `--xpra-xwayland`
  - `--weston` and `--weston-xwayland` on console
  - `--kwin`

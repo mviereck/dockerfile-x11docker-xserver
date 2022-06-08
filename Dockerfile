@@ -9,13 +9,9 @@
 #
 # x11docker on github: https://github.com/mviereck/x11docker
 
-LABEL version=1.1
-LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston'
-LABEL tools='xclip copyq xauth virgl xfishtank wmctrl'
-LABEL gpu='MESA'
+FROM debian:bullseye
 
 #########################
-FROM debian:bullseye
 
 # cleanup script for use after apt-get
 RUN echo '#! /bin/sh\n\
@@ -45,12 +41,29 @@ RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/source
     apt-get remove -y --purge $installpackages && \
     /apt_cleanup
 
-# X servers and tools
+# install nxagent
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        /nxagent_3.5.99.26-2_amd64.deb \
-        virgl-server \
+        /nxagent_3.5.99.26-2_amd64.deb && \
+    /apt_cleanup
+
+# X servers
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         weston \
+        xinit \
+        xserver-xephyr \
+        xserver-xorg \
+        xvfb \
+        xwayland && \
+    /apt_cleanup
+
+# tools
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        copyq \
+        copyq-plugins \
+        virgl-server \
         wmctrl \
         x11-utils \
         x11-xkb-utils \
@@ -58,10 +71,7 @@ RUN apt-get update && \
         xauth \
         xclip \
         xfishtank \
-        xinit \
-        xserver-xephyr \
-        xvfb \
-        xwayland && \
+        xinit && \
     /apt_cleanup
 
 # Window manager openbox with disabled context menu
@@ -106,15 +116,20 @@ RUN apt-get update && \
         libx11-dev && \
     /apt_cleanup
 
-
+# Xorg wrapper
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            copyq \
-            copyq-plugins && \
+        xserver-xorg-legacy && \
+    echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
+    echo 'needs_root_rights=yes' >>/etc/X11/Xwrapper.config && \
     /apt_cleanup
 
-#RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-#        xkbset xkbind xkb-data x11-xkb-utils gir1.2-xkl-1.0 libxkbcommon0 libxkbcommon-x11-0 libxcb-xkb1
-
+# kwin
 #RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 #        kwin-wayland kwin-wayland-backend-x11 kwin-wayland-backend-wayland
+
+LABEL version='1.2'
+LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
+LABEL tools='xclip copyq xauth virgl xfishtank wmctrl'
+LABEL gpu='MESA'
+LABEL windowmanager='openbox'
