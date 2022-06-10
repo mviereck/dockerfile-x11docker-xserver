@@ -4,10 +4,10 @@ This Dockerfile provides a set of X servers that can be used by [x11docker](http
 The resulting image `x11docker/xserver` can be used automatically to run the supported X servers in a container.
 This allows to isolate the X servers from host and to reduce x11docker dependencies on host.
 
-Build image with: `x11docker --build x11docker/xserver`
-The build takes a while because nxagent is built from source.
+Pull the image from docker hub with `docker pull x11docker/xserver`.
 
-Alternatively pull it from docker hub with `docker pull x11docker/xserver`.
+Or build image yourself with: `x11docker --build x11docker/xserver`
+The build takes a while because nxagent is built from source.
 
 Currently supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
  - `--nxagent`
@@ -25,7 +25,6 @@ Options that depend on image `x11docker/xserver` and `xpra` on host:
  
 Not supported:  
  - `--xpra-xwayland`
- - `--weston` and `--weston-xwayland` on console
  - `--kwin`
  
 `--xpra2` and `--xpra2-xwayland` run X server and xpra server in container, but xpra client on host. 

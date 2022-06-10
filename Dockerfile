@@ -54,6 +54,7 @@ RUN apt-get update && \
         xinit \
         xserver-xephyr \
         xserver-xorg \
+        xserver-xorg-legacy \
         xvfb \
         xwayland && \
     /apt_cleanup
@@ -63,6 +64,8 @@ RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         copyq \
         copyq-plugins \
+        psmisc \
+        psutils \
         virgl-server \
         wmctrl \
         x11-utils \
@@ -116,20 +119,40 @@ RUN apt-get update && \
         libx11-dev && \
     /apt_cleanup
 
-# Xorg wrapper
-RUN apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        xserver-xorg-legacy && \
-    echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
-    echo 'needs_root_rights=yes' >>/etc/X11/Xwrapper.config && \
-    /apt_cleanup
+# configure Xorg wrapper
+RUN echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
+    echo 'needs_root_rights=yes' >>/etc/X11/Xwrapper.config
+
+# wrapper to run weston either on console or within DISPLAY or WAYLAND_DISPLAY
+# note: includes setuid for agetty to allow it for unprivileged users
+RUN echo '#! /bin/bash \n\
+case "$DISPLAY$WAYLAND_DISPLAY" in \n\
+  "") \n\
+    [ -e /dev/tty$XDG_VTNR ] && [ -n "$XDG_VTNR" ] || { \n\
+      echo "ERROR: No display and no tty found. XDG_VTNR is empty." >&2 \n\
+      exit 1 \n\
+    } \n\
+    exec agetty --login-options "-v -- $* --log=/x11docker/compositor.log " --autologin $(id -un) --login-program /usr/bin/weston-launch --noclear tty$XDG_VTNR \n\
+  ;; \n\
+  *) \n\
+    exec /usr/bin/weston "$@" \n\
+  ;; \n\
+esac \n\
+' >/usr/local/bin/weston && \
+    chmod +x /usr/local/bin/weston && \
+    ln /usr/local/bin/weston /usr/local/bin/weston-launch
 
 # kwin
 #RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 #        kwin-wayland kwin-wayland-backend-x11 kwin-wayland-backend-wayland
 
-LABEL version='1.2'
+# HOME
+RUN mkdir -p /home/container && chmod 777 /home/container
+ENV HOME=/home/container
+
+LABEL version='1.3'
 LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
 LABEL tools='xclip copyq xauth virgl xfishtank wmctrl'
+LABEL options_console='--xorg --weston --weston-xwayland'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
