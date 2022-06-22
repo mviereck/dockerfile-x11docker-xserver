@@ -59,32 +59,6 @@ RUN apt-get update && \
         xwayland && \
     /apt_cleanup
 
-# tools
-RUN apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        copyq \
-        copyq-plugins \
-        psmisc \
-        psutils \
-        virgl-server \
-        wmctrl \
-        x11-utils \
-        x11-xkb-utils \
-        x11-xserver-utils \
-        xauth \
-        xclip \
-        xfishtank \
-        xinit && \
-    /apt_cleanup
-
-# Window manager openbox with disabled context menu
-RUN apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        openbox && \
-    sed -i /ShowMenu/d         /etc/xdg/openbox/rc.xml && \
-    sed -i s/NLIMC/NLMC/       /etc/xdg/openbox/rc.xml && \
-    /apt_cleanup
-
 # xpra from xpra repository
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -105,6 +79,14 @@ RUN apt-get update && \
         ca-certificates && \
     /apt_cleanup
 
+# Window manager openbox with disabled context menu
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        openbox && \
+    sed -i /ShowMenu/d         /etc/xdg/openbox/rc.xml && \
+    sed -i s/NLIMC/NLMC/       /etc/xdg/openbox/rc.xml && \
+    /apt_cleanup
+
 # compile fake MIT-SHM library
 COPY XlibNoSHM.c /XlibNoSHM.c
 RUN apt-get update && \
@@ -117,6 +99,24 @@ RUN apt-get update && \
         gcc \
         libc6-dev \
         libx11-dev && \
+    /apt_cleanup
+
+# tools
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        psmisc \
+        psutils \
+        virgl-server \
+        wmctrl \
+        x11-utils \
+        x11-xkb-utils \
+        x11-xserver-utils \
+        xauth \
+        xbindkeys \
+        xclip \
+        xdotool \
+        xfishtank \
+        xinit && \
     /apt_cleanup
 
 # configure Xorg wrapper
@@ -150,9 +150,9 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='1.3'
+LABEL version='1.4'
 LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
-LABEL tools='xclip copyq xauth virgl xfishtank wmctrl'
+LABEL tools='setxkbmap virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xfishtank xkbcomp xhost xinit xrandr xwininfo'
 LABEL options_console='--xorg --weston --weston-xwayland'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
