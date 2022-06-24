@@ -46,3 +46,5 @@ This will slow down container startup. Compare [x11docker wiki: Automated instal
  - In Dockerfile for `x11docker/xserver` change `FROM debian:bullseye` to `FROM x11docker/nvidia-base` and build image `x11docker/xserver` with this Dockerfile.
  
 Note that this image will only work with the NVIDIA driver version of your host and is not portable.
+
+![x11docker logo](https://github.com/mviereck/x11docker/blob/screenshots/x11docker-512x512.png)
