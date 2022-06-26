@@ -104,8 +104,11 @@ RUN apt-get update && \
 # tools
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        procps \
         psmisc \
         psutils \
+        vainfo \
+        vdpauinfo \
         virgl-server \
         wmctrl \
         x11-utils \
@@ -150,9 +153,10 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='1.4'
+LABEL version='1.6'
 LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
-LABEL tools='setxkbmap virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xfishtank xkbcomp xhost xinit xrandr xwininfo'
+LABEL tools='glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
+             xfishtank xhost xinit xkbcomp xkill xlsclients xmessage xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--xorg --weston --weston-xwayland'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
