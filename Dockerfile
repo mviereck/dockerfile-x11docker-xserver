@@ -154,8 +154,8 @@ RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
 LABEL version='1.6'
-LABEL options='--nxagent --xpra --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
-LABEL tools='glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
+LABEL options='--nxagent --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
+LABEL tools='cvt glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
              xfishtank xhost xinit xkbcomp xkill xlsclients xmessage xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--xorg --weston --weston-xwayland'
 LABEL gpu='MESA'
