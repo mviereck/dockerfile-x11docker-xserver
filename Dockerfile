@@ -50,6 +50,10 @@ RUN apt-get update && \
 # X servers
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        kwin-wayland \
+        kwin-wayland-backend-drm \
+        kwin-wayland-backend-wayland \
+        kwin-wayland-backend-x11 \
         weston \
         xinit \
         xserver-xephyr \
@@ -145,18 +149,14 @@ esac \n\
     chmod +x /usr/local/bin/weston && \
     ln /usr/local/bin/weston /usr/local/bin/weston-launch
 
-# kwin
-#RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-#        kwin-wayland kwin-wayland-backend-x11 kwin-wayland-backend-wayland
-
 # HOME
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='1.6'
-LABEL options='--nxagent --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xephyr --weston-xwayland --xvfb --xwayland --weston --xorg'
+LABEL version='1.7'
+LABEL options='--kwin --nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
 LABEL tools='cvt glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
              xfishtank xhost xinit xkbcomp xkill xlsclients xmessage xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
-LABEL options_console='--xorg --weston --weston-xwayland'
+LABEL options_console='--kwin --weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'

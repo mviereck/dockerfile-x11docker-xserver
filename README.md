@@ -9,23 +9,25 @@ Pull the image from docker hub with `docker pull x11docker/xserver`.
 Or build image yourself with: `x11docker --build x11docker/xserver`
 The build takes a while because nxagent is built from source.
 
-Currently supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
+This image supports all x11docker X server options and also contains several tools to reduce x11docker dependencies on host.
+The image includes X servers and Wayland compositors `kwin_wayland`, `nxagent`, `Xephyr`, `Xorg`, `Xvfb`, `weston`, `Xwayland` and `xpra`.
+
+Supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
+ - `--hostdisplay`
+ - `--kwin`
  - `--nxagent`
- - `--xpra`
- - `--xephyr`
+ - `--weston`
  - `--weston-xwayland`
+ - `--xephyr`
+ - `--xorg`
+ - `--xpra`
+ - `--xpra-xwayland`
  - `--xvfb`
  - `--xwayland`
- - `--weston`
- - `--xorg`
 
-Options that depend on image `x11docker/xserver` and `xpra` on host:
+New options that depend on image `x11docker/xserver` and `xpra` on host:
  - `--xpra2`
  - `--xpra2-xwayland`
- 
-Not supported:  
- - `--xpra-xwayland`
- - `--kwin`
  
 `--xpra2` and `--xpra2-xwayland` run X server and xpra server in container, but xpra client on host. 
 This should provide the best possible combination of security and performance for `xpra`.
