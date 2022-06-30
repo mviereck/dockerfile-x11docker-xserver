@@ -13,7 +13,6 @@ This image supports all x11docker X server options and also contains several too
 The image includes X servers and Wayland compositors `kwin_wayland`, `nxagent`, `Xephyr`, `Xorg`, `Xvfb`, `weston`, `Xwayland` and `xpra`.
 
 Supported x11docker options (formerly host only) for use with image `x11docker/xserver`:
- - `--hostdisplay`
  - `--kwin`
  - `--nxagent`
  - `--weston`
