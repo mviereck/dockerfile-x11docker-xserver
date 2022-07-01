@@ -114,6 +114,7 @@ RUN apt-get update && \
         vainfo \
         vdpauinfo \
         virgl-server \
+        wl-clipboard \
         wmctrl \
         x11-utils \
         x11-xkb-utils \
@@ -155,7 +156,7 @@ ENV HOME=/home/container
 
 LABEL version='1.7'
 LABEL options='--kwin --nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
-LABEL tools='cvt glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
+LABEL tools='cvt glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wl-copy wl-paste wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
              xfishtank xhost xinit xkbcomp xkill xlsclients xmessage xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--kwin --weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
