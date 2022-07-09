@@ -111,6 +111,7 @@ RUN apt-get update && \
         procps \
         psmisc \
         psutils \
+        socat \
         vainfo \
         vdpauinfo \
         virgl-server \
@@ -154,9 +155,9 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='1.8'
+LABEL version='1.9'
 LABEL options='--kwin --nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
-LABEL tools='cvt glxinfo iceauth setxkbmap vainfo vdpauinfo virgl wl-copy wl-paste wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
+LABEL tools='cvt glxinfo iceauth setxkbmap socat vainfo vdpauinfo virgl wl-copy wl-paste wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
              xfishtank xhost xinit xkbcomp xkill xlsclients xmessage xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--kwin --weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
