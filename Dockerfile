@@ -108,6 +108,7 @@ RUN apt-get update && \
 # tools
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        catatonit \
         procps \
         psmisc \
         psutils \
@@ -157,8 +158,13 @@ ENV HOME=/home/container
 
 LABEL version='1.9'
 LABEL options='--kwin --nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
-LABEL tools='cvt glxinfo iceauth setxkbmap socat vainfo vdpauinfo virgl wl-copy wl-paste wmctrl xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
-             xfishtank xhost xinit xkbcomp xkill xlsclients xmessage xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
+LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
+             vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
+             xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
+             xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
+             xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--kwin --weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
+
+ENTRYPOINT ["/usr/bin/catatonit", "--"]
