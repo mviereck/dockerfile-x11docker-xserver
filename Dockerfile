@@ -9,9 +9,25 @@
 #
 # x11docker on github: https://github.com/mviereck/x11docker
 
-FROM debian:bullseye
+FROM debian:bullseye AS nxbuild
 
 #########################
+
+# build patched nxagent from source. Allows to run with /tmp/.X11-unix not to be owned by root.
+# https://github.com/ArcticaProject/nx-libs/issues/1034
+RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y build-essential devscripts && \
+    apt-get build-dep -y nxagent && \
+    mkdir /nxbuild && \
+    cd /nxbuild && \
+    apt-get source nxagent && \
+    cd nx-libs-3.5.99.26 && \
+    sed -i 's/# define XtransFailSoft NO/# define XtransFailSoft YES/' nx-X11/config/cf/X11.rules && \
+    debuild -b -uc -us
+
+FROM debian:bullseye
+COPY --from=nxbuild /nxbuild/nxagent_3.*.deb /nxagent.deb
 
 # cleanup script for use after apt-get
 RUN echo '#! /bin/sh\n\
@@ -23,28 +39,10 @@ find /var/log -type f -delete\n\
 exit 0\n\
 ' > /apt_cleanup && chmod +x /apt_cleanup
 
-# build patched nxagent from source. Allows to run with /tmp/.X11-unix not to be owned by root.
-# https://github.com/ArcticaProject/nx-libs/issues/1034
-RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list && \
-    apt-get update && \
-    installpackages="dpkg-dev devscripts $(apt-get build-dep --dry-run nxagent | grep "Inst " | awk '{print $2}')" && \
-    apt-get install -y --no-install-recommends $installpackages && \
-    mkdir /nxbuild && \
-    cd /nxbuild && \
-    apt-get source nxagent && \
-    cd nx-libs-3.5.99.26 && \
-    sed -i 's/# define XtransFailSoft NO/# define XtransFailSoft YES/' nx-X11/config/cf/X11.rules && \
-    debuild -b -uc -us && \
-    cd /nxbuild && \
-    cp nxagent_3.*.deb / && \
-    rm -R /nxbuild && \
-    apt-get remove -y --purge $installpackages && \
-    /apt_cleanup
-
 # install nxagent
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        /nxagent_3.5.99.26-2_amd64.deb && \
+        /nxagent.deb && \
     /apt_cleanup
 
 # X servers
@@ -55,7 +53,6 @@ RUN apt-get update && \
         kwin-wayland-backend-wayland \
         kwin-wayland-backend-x11 \
         weston \
-        xinit \
         xserver-xephyr \
         xserver-xorg \
         xserver-xorg-legacy \
@@ -156,7 +153,7 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='1.9'
+LABEL version='1.10'
 LABEL options='--kwin --nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
 LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
