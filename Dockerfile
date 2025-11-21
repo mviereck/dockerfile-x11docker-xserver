@@ -66,24 +66,26 @@ RUN apt-get update && \
     /apt_cleanup
 
 # xpra from xpra repository
-RUN curl https://xpra.org/get-xpra.sh | bash && \
-    /apt_cleanup
-#RUN apt-get update && \
-#    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-#        apt-transport-https \
-#        ca-certificates \
-#        wget && \
-#    wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc &&  \
-#    wget -O "/etc/apt/sources.list.d/xpra.sources" https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/trixie/xpra.sources && \
-#    apt-get update && \
-#    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-#        xpra  \
-#        ibus \
-#        python3-rencode && \
-#    apt-get remove --purge -y \
-#        wget \
-#        ca-certificates && \
+#RUN curl https://xpra.org/get-xpra.sh | bash && \
 #    /apt_cleanup
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        ca-certificates \
+        wget && \
+    wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc &&  \
+    wget -O "/etc/apt/sources.list.d/xpra.sources" https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/trixie/xpra.sources && \
+    apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        xpra  && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        xpra  \
+        ibus \
+        python3-rencode && \
+    apt-get remove --purge -y \
+        wget \
+        ca-certificates && \
+    /apt_cleanup
 
 # Window manager openbox with disabled context menu
 RUN apt-get update && \
