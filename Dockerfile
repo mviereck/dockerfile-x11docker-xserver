@@ -9,24 +9,24 @@
 #
 # x11docker on github: https://github.com/mviereck/x11docker
 
-FROM debian:bullseye AS nxbuild
+FROM debian:trixie AS nxbuild
 
 #########################
 
 # build patched nxagent from source. Allows to run with /tmp/.X11-unix not to be owned by root.
 # https://github.com/ArcticaProject/nx-libs/issues/1034
-RUN echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list && \
+RUN echo "deb-src http://deb.debian.org/debian trixie main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y build-essential devscripts && \
     apt-get build-dep -y nxagent && \
     mkdir /nxbuild && \
     cd /nxbuild && \
     apt-get source nxagent && \
-    cd nx-libs-3.5.99.26 && \
+    cd nx-libs-3.5.99.27 && \
     sed -i 's/# define XtransFailSoft NO/# define XtransFailSoft YES/' nx-X11/config/cf/X11.rules && \
     debuild -b -uc -us
 
-FROM debian:bullseye
+FROM debian:trixie
 COPY --from=nxbuild /nxbuild/nxagent_3.*.deb /nxagent.deb
 
 # cleanup script for use after apt-get
@@ -48,10 +48,6 @@ RUN apt-get update && \
 # X servers
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        kwin-wayland \
-        kwin-wayland-backend-drm \
-        kwin-wayland-backend-wayland \
-        kwin-wayland-backend-x11 \
         weston \
         xserver-xephyr \
         xserver-xorg \
@@ -60,25 +56,34 @@ RUN apt-get update && \
         xwayland && \
     /apt_cleanup
 
-# xpra from xpra repository
+# MESA
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        wget \
-        gnupg \
-        ca-certificates && \
-    wget -q http://xpra.org/gpg.asc -O xpra-gpg.asc && \
-    apt-key add xpra-gpg.asc && \
-    echo "deb http://xpra.org/ bullseye main" > /etc/apt/sources.list.d/xpra.list && \
-    apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        xpra  \
-        ibus \
-        python3-rencode && \
-    apt-get remove --purge -y \
-        wget \
-        gnupg \
-        ca-certificates && \
+        libglx-mesa0 \
+        mesa-va-drivers \
+        mesa-vdpau-drivers \
+        mesa-vulkan-drivers && \
     /apt_cleanup
+
+# xpra from xpra repository
+RUN curl https://xpra.org/get-xpra.sh | bash && \
+    /apt_cleanup
+#RUN apt-get update && \
+#    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+#        apt-transport-https \
+#        ca-certificates \
+#        wget && \
+#    wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc &&  \
+#    wget -O "/etc/apt/sources.list.d/xpra.sources" https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/trixie/xpra.sources && \
+#    apt-get update && \
+#    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+#        xpra  \
+#        ibus \
+#        python3-rencode && \
+#    apt-get remove --purge -y \
+#        wget \
+#        ca-certificates && \
+#    /apt_cleanup
 
 # Window manager openbox with disabled context menu
 RUN apt-get update && \
@@ -122,9 +127,10 @@ RUN apt-get update && \
         xbindkeys \
         xclip \
         xdotool \
-        xfishtank \
-        xinit && \
+        xinit \
+        xcvt && \
     /apt_cleanup
+# tools
 
 # configure Xorg wrapper
 RUN echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
@@ -153,14 +159,14 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='1.10'
-LABEL options='--kwin --nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
+LABEL version='2.0'
+LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
 LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
              xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
-             xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
+             xhost xinit xkbcomp xkill xlsclients xmessage \
              xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
-LABEL options_console='--kwin --weston --weston-xwayland --xorg'
+LABEL options_console='--weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
 
