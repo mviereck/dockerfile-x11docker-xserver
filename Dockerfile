@@ -126,6 +126,7 @@ RUN apt-get update && \
         virgl-server \
         wl-clipboard \
         wmctrl \
+        x11-apps \
         x11-utils \
         x11-xkb-utils \
         x11-xserver-utils \
@@ -135,6 +136,16 @@ RUN apt-get update && \
         xdotool \
         xinit \
         xcvt && \
+    /apt_cleanup
+
+# xfishtank
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      wget && \
+    wget http://ftp.debian.org/debian/pool/main/x/xfishtank/xfishtank_3.2.2-1_amd64.deb && \
+    apt-get install -y ./xfishtank_3.2.2-1_amd64.deb && \
+    rm ./xfishtank_3.2.2-1_amd64.deb && \
+    apt-get remove -y wget && \
     /apt_cleanup
 
 # Additionally needed libraries
@@ -171,14 +182,15 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='2.1'
+LABEL version='2.2'
 LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
 LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
              xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
-             xhost xinit xkbcomp xkill xlsclients xmessage \
-             xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
-LABEL options_console='--weston --weston-xwayland --xorg'
+             xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
+             xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo \
+             ico oclock xcalc xclock xeyes xlogo xmag'
+LABEL options_console='--weston --weston-xwayland --xorg '
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
 
