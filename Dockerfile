@@ -28,6 +28,7 @@ RUN echo "deb-src http://deb.debian.org/debian trixie main" >> /etc/apt/sources.
 
 FROM debian:trixie
 COPY --from=nxbuild /nxbuild/nxagent_3.*.deb /nxagent.deb
+ENV DIST=trixie
 
 # cleanup script for use after apt-get
 RUN echo '#! /bin/sh\n\
@@ -74,12 +75,15 @@ RUN apt-get update && \
         ca-certificates \
         wget && \
     wget -O "/usr/share/keyrings/xpra.asc" https://xpra.org/xpra.asc &&  \
-    wget -O "/etc/apt/sources.list.d/xpra.sources" https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/trixie/xpra.sources && \
+    wget -O "/etc/apt/sources.list.d/xpra.sources" https://raw.githubusercontent.com/Xpra-org/xpra/master/packaging/repos/$DIST/xpra.sources && \
     apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        xpra  && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        xpra  \
+        xpra \
+        xpra-audio \
+        xpra-audio-server \
+        xpra-codecs-extras \
+        xpra-codecs-nvidia \
+        xpra-x11 \
         ibus \
         python3-rencode && \
     apt-get remove --purge -y \
@@ -132,7 +136,13 @@ RUN apt-get update && \
         xinit \
         xcvt && \
     /apt_cleanup
-# tools
+
+# Additionally needed libraries
+RUN apt-get update && \
+    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libdecor-0-0 \
+        libdecoration0t64 && \
+    /apt_cleanup
 
 # configure Xorg wrapper
 RUN echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
@@ -161,7 +171,7 @@ esac \n\
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='2.0'
+LABEL version='2.1'
 LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
 LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
