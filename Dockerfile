@@ -9,7 +9,7 @@
 #
 # x11docker on github: https://github.com/mviereck/x11docker
 
-FROM debian:trixie AS nxbuild
+FROM debian:trixie AS buildstage
 
 #########################
 
@@ -26,9 +26,32 @@ RUN echo "deb-src http://deb.debian.org/debian trixie main" >> /etc/apt/sources.
     sed -i 's/# define XtransFailSoft NO/# define XtransFailSoft YES/' nx-X11/config/cf/X11.rules && \
     debuild -b -uc -us
 
+# build xwayland-satellite
+RUN apt-get install -y \
+      clang \
+      cargo \
+      libxcb-cursor-dev \
+      git && \
+    cd / && \
+    git clone https://github.com/Supreeeme/xwayland-satellite.git && \
+    cd xwayland-satellite && \
+    cargo build
+
+# build fake MIT-SHM library
+COPY XlibNoSHM.c /XlibNoSHM.c
+RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            gcc \
+            libc6-dev \
+            libx11-dev && \
+    gcc -shared -o /XlibNoSHM.so /XlibNoSHM.c
+
+#########################
+
 FROM debian:trixie
-COPY --from=nxbuild /nxbuild/nxagent_3.*.deb /nxagent.deb
 ENV DIST=trixie
+COPY --from=buildstage /nxbuild/nxagent_3.*.deb /nxagent.deb
+COPY --from=buildstage /xwayland-satellite/target/debug/xwayland-satellite /usr/bin/xwayland-satellite
+COPY --from=buildstage /XlibNoSHM.so /XlibNoSHM.so
 
 # cleanup script for use after apt-get
 RUN echo '#! /bin/sh\n\
@@ -55,12 +78,18 @@ RUN apt-get update && \
         xserver-xorg-legacy \
         xvfb \
         xwayland && \
+    apt-get install -y \
+        libdecor-0-0 \
+        libdecor-0-plugin-1-cairo \
+        libxcb1 \
+        libxcb-cursor0 && \
     /apt_cleanup
 
 # MESA
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         libglx-mesa0 \
+        mesa-utils \
         mesa-va-drivers \
         mesa-vdpau-drivers \
         mesa-vulkan-drivers && \
@@ -99,20 +128,6 @@ RUN apt-get update && \
     sed -i s/NLIMC/NLMC/       /etc/xdg/openbox/rc.xml && \
     /apt_cleanup
 
-# compile fake MIT-SHM library
-COPY XlibNoSHM.c /XlibNoSHM.c
-RUN apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            gcc \
-            libc6-dev \
-            libx11-dev && \
-    gcc -shared -o /XlibNoSHM.so /XlibNoSHM.c && \
-    apt-get remove --purge -y \
-        gcc \
-        libc6-dev \
-        libx11-dev && \
-    /apt_cleanup
-
 # tools
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -148,11 +163,10 @@ RUN apt-get update && \
     apt-get remove -y wget && \
     /apt_cleanup
 
-# Additionally needed libraries
+# test
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        libdecor-0-0 \
-        libdecoration0t64 && \
+      libgcc-s1 && \
     /apt_cleanup
 
 # configure Xorg wrapper
@@ -183,14 +197,13 @@ RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
 LABEL version='2.2'
-LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland'
+LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland --xwayland-satellite'
 LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
              xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
              xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
-             xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo \
-             ico oclock xcalc xclock xeyes xlogo xmag'
-LABEL options_console='--weston --weston-xwayland --xorg '
+             xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
+LABEL options_console='--weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
 LABEL windowmanager='openbox'
 
