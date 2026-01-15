@@ -13,12 +13,16 @@ FROM debian:trixie AS buildstage
 
 #########################
 
-# build patched nxagent from source. Allows to run with /tmp/.X11-unix not to be owned by root.
-# https://github.com/ArcticaProject/nx-libs/issues/1034
 RUN echo "deb-src http://deb.debian.org/debian trixie main" >> /etc/apt/sources.list && \
     apt-get update && \
-    apt-get install -y build-essential devscripts && \
-    apt-get build-dep -y nxagent && \
+    apt-get install -y \
+      build-essential \
+      gcc \
+      devscripts
+
+# build patched nxagent from source. Allows to run with /tmp/.X11-unix not to be owned by root.
+# https://github.com/ArcticaProject/nx-libs/issues/1034
+RUN apt-get build-dep -y nxagent && \
     mkdir /nxbuild && \
     cd /nxbuild && \
     apt-get source nxagent && \
@@ -40,10 +44,17 @@ RUN apt-get install -y \
 # build fake MIT-SHM library
 COPY XlibNoSHM.c /XlibNoSHM.c
 RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            gcc \
             libc6-dev \
             libx11-dev && \
     gcc -shared -o /XlibNoSHM.so /XlibNoSHM.c
+
+# build bindkey for --clipboard=superaltv
+COPY bindkey.c /bindkey.c
+RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            libevdev-dev \
+            libinput-dev && \
+    gcc -I/usr/include/libevdev-1.0 -I/usr/include/libevdev-1.0/libevdev -o /bindkey /bindkey.c -levdev
+
 
 #########################
 
@@ -52,6 +63,7 @@ ENV DIST=trixie
 COPY --from=buildstage /nxbuild/nxagent_3.*.deb /nxagent.deb
 COPY --from=buildstage /xwayland-satellite/target/debug/xwayland-satellite /usr/bin/xwayland-satellite
 COPY --from=buildstage /XlibNoSHM.so /XlibNoSHM.so
+COPY --from=buildstage /bindkey /usr/local/bin/bindkey
 
 # cleanup script for use after apt-get
 RUN echo '#! /bin/sh\n\
@@ -163,12 +175,6 @@ RUN apt-get update && \
     apt-get remove -y wget && \
     /apt_cleanup
 
-# test
-RUN apt-get update && \
-    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      libgcc-s1 && \
-    /apt_cleanup
-
 # configure Xorg wrapper
 RUN echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
     echo 'needs_root_rights=yes' >>/etc/X11/Xwrapper.config
@@ -192,16 +198,19 @@ esac \n\
     chmod +x /usr/local/bin/weston && \
     ln /usr/local/bin/weston /usr/local/bin/weston-launch
 
+RUN chown root:input /usr/local/bin/bindkey && \
+    chmod +g /usr/local/bin/bindkey
+
 # HOME
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='2.2'
-LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland --xwayland-satellite'
-LABEL tools='catatonit cvt glxinfo iceauth setxkbmap socat \
+LABEL version='2.3'
+LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland --satellite'
+LABEL tools='bindkey catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
              xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
-             xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
+             xeyes xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
              xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
