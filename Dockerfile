@@ -181,22 +181,23 @@ RUN echo 'allowed_users=anybody' >/etc/X11/Xwrapper.config && \
 
 # wrapper to run weston either on console or within DISPLAY or WAYLAND_DISPLAY
 # note: includes setuid for agetty to allow it for unprivileged users
-RUN echo '#! /bin/bash \n\
-case "$DISPLAY$WAYLAND_DISPLAY" in \n\
-  "") \n\
-    [ -e /dev/tty$XDG_VTNR ] && [ -n "$XDG_VTNR" ] || { \n\
-      echo "ERROR: No display and no tty found. XDG_VTNR is empty." >&2 \n\
-      exit 1 \n\
-    } \n\
-    exec agetty --login-options "-v -- $* --log=/x11docker/compositor.log " --autologin $(id -un) --login-program /usr/bin/weston-launch --noclear tty$XDG_VTNR \n\
-  ;; \n\
-  *) \n\
-    exec /usr/bin/weston "$@" \n\
-  ;; \n\
-esac \n\
-' >/usr/local/bin/weston && \
-    chmod +x /usr/local/bin/weston && \
-    ln /usr/local/bin/weston /usr/local/bin/weston-launch
+#RUN echo '#! /bin/bash \n\
+#case "$DISPLAY$WAYLAND_DISPLAY" in \n\
+#  "") \n\
+#    [ -e /dev/tty$XDG_VTNR ] && [ -n "$XDG_VTNR" ] || { \n\
+#      echo "ERROR: No display and no tty found. XDG_VTNR is empty." >&2 \n\
+#      exit 1 \n\
+#    } \n\
+#    /usr/bin/weston $@ \n\
+#    #exec agetty --login-options "-v -- $* --log=/x11docker/compositor.log " --autologin $(id -un) --login-program /usr/bin/weston-launch --noclear tty$XDG_VTNR \n\
+#  ;; \n\
+#  *) \n\
+#    exec /usr/bin/weston "$@" \n\
+#  ;; \n\
+#esac \n\
+#' >/usr/local/bin/weston && \
+#    chmod +x /usr/local/bin/weston && \
+#    ln /usr/local/bin/weston /usr/local/bin/weston-launch
 
 RUN chown root:input /usr/local/bin/bindkey && \
     chmod +g /usr/local/bin/bindkey
@@ -205,7 +206,7 @@ RUN chown root:input /usr/local/bin/bindkey && \
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='2.3'
+LABEL version='2.4'
 LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland --satellite'
 LABEL tools='bindkey catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
