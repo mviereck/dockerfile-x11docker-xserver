@@ -39,7 +39,7 @@ RUN apt-get install -y \
     cd / && \
     git clone https://github.com/Supreeeme/xwayland-satellite.git && \
     cd xwayland-satellite && \
-    cargo build
+    cargo build --release
 
 # build fake MIT-SHM library
 COPY XlibNoSHM.c /XlibNoSHM.c
@@ -61,7 +61,7 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get install -y \
 FROM debian:trixie
 ENV DIST=trixie
 COPY --from=buildstage /nxbuild/nxagent_3.*.deb /nxagent.deb
-COPY --from=buildstage /xwayland-satellite/target/debug/xwayland-satellite /usr/bin/xwayland-satellite
+COPY --from=buildstage /xwayland-satellite/target/release/xwayland-satellite /usr/bin/xwayland-satellite
 COPY --from=buildstage /XlibNoSHM.so /XlibNoSHM.so
 COPY --from=buildstage /bindkey /usr/local/bin/bindkey
 
@@ -206,12 +206,12 @@ RUN chown root:input /usr/local/bin/bindkey && \
 RUN mkdir -p /home/container && chmod 777 /home/container
 ENV HOME=/home/container
 
-LABEL version='2.4'
+LABEL version='2.6'
 LABEL options='--nxagent --weston --weston-xwayland --xephyr --xpra --xpra-xwayland --xpra2 --xpra2-xwayland --xorg --xvfb --xwayland --satellite'
 LABEL tools='bindkey catatonit cvt glxinfo iceauth setxkbmap socat \
              vainfo vdpauinfo virgl wl-copy wl-paste wmctrl \
              xauth xbindkeys xclip xdotool xdpyinfo xdriinfo xev \
-             xeyes xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
+             xeyes xlogo xfishtank xhost xinit xkbcomp xkill xlsclients xmessage \
              xmodmap xprop xrandr xrefresh xset xsetroot xvinfo xwininfo'
 LABEL options_console='--weston --weston-xwayland --xorg'
 LABEL gpu='MESA'
